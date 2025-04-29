@@ -1,243 +1,128 @@
-import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
-import WhitelistTable from "@/components/WhitelistTable";
-import WhitelistForm from "@/components/WhitelistForm";
-import WhitelistSearchBar from "@/components/WhitelistSearchBar";
-import WhitelistFilter from "@/components/WhitelistFilter";
-import { mockWhitelistData } from "@/utils/mockData";
-import { Plus } from "lucide-react";
 
-interface FilterOption {
-  field: string;
-  value: boolean | null;
+import React from "react";
+import { Edit, Trash } from "lucide-react";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { WhitelistEntry } from "@/types/whitelist";
+
+// Define the props interface for the component
+interface WhitelistTableProps {
+  data: WhitelistEntry[];
+  onEdit: (entry: WhitelistEntry) => void;
+  onDelete: (id: string) => void;
+  onToggleSwitch: (id: string, field: string, value: boolean) => void;
 }
 
-const Index = () => {
-  const [whitelistData, setWhitelistData] = useState<WhitelistEntry[]>([]);
-  const [filteredData, setFilteredData] = useState<WhitelistEntry[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<FilterOption[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [currentEntry, setCurrentEntry] = useState<WhitelistEntry | undefined>(undefined);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+const WhitelistTable: React.FC<WhitelistTableProps> = ({ 
+  data, 
+  onEdit, 
+  onDelete, 
+  onToggleSwitch 
+}) => {
+  if (data.length === 0) {
+    return (
+      <div className="text-center py-12 border rounded-lg bg-muted/20">
+        <p className="text-muted-foreground">
+          No whitelist entries found.
+        </p>
+      </div>
+    );
+  }
 
-  // Load initial data
-  useEffect(() => {
-    // In a real app, you would fetch data from an API
-    setWhitelistData(mockWhitelistData);
-    setFilteredData(mockWhitelistData);
-  }, []);
-
-  // Filter data based on search query and active filters
-  useEffect(() => {
-    let result = whitelistData;
-    
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const lowerCaseQuery = searchQuery.toLowerCase();
-      result = result.filter(
-        (entry) =>
-          entry.email.toLowerCase().includes(lowerCaseQuery) ||
-          (entry.sso_id !== null && 
-           entry.sso_id.toString().includes(lowerCaseQuery))
-      );
-    }
-    
-    // Apply multiple field filters if active
-    if (activeFilters.length > 0) {
-      // Filter entries that match ALL of the active filters
-      result = result.filter(entry => {
-        return activeFilters.every(filter => {
-          const fieldName = filter.field as keyof WhitelistEntry;
-          return entry[fieldName] === filter.value;
-        });
-      });
-    }
-    
-    setFilteredData(result);
-  }, [searchQuery, whitelistData, activeFilters]);
-
-  const handleApplyFilters = (filters: FilterOption[]) => {
-    setActiveFilters(filters);
-    if (filters.length === 1) {
-      const filter = filters[0];
-      toast.info(`Filter applied: ${filter.field} ${filter.value ? '(enabled)' : '(disabled)'}`);
-    } else {
-      toast.info(`${filters.length} filters applied`);
-    }
-  };
-
-  const handleClearFilters = () => {
-    setActiveFilters([]);
-    toast.info("All filters cleared");
-  };
-
-  const handleAddEntry = () => {
-    setCurrentEntry(undefined);
-    setIsFormOpen(true);
-  };
-
-  const handleEditEntry = (entry: WhitelistEntry) => {
-    setCurrentEntry(entry);
-    setIsFormOpen(true);
-  };
-
-  const handleDeleteEntry = (id: string) => {
-    setEntryToDelete(id);
-  };
-
-  const confirmDelete = () => {
-    if (!entryToDelete) return;
-    
-    setWhitelistData(whitelistData.filter(entry => entry.id !== entryToDelete));
-    toast.success("Whitelist entry deleted successfully!");
-    setEntryToDelete(null);
-  };
-
-  const handleFormSubmit = (formData: WhitelistFormData) => {
-    setIsSubmitting(true);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      if (currentEntry) {
-        // Update existing entry - set updated_at to current timestamp
-        const updated: WhitelistEntry = {
-          ...currentEntry,
-          ...formData,
-          updated_at: new Date().toISOString(),
-        };
-        
-        setWhitelistData(whitelistData.map(entry => 
-          entry.id === currentEntry.id ? updated : entry
-        ));
-        
-        toast.success("Whitelist entry updated successfully!");
-      } else {
-        // Add new entry - updated_at is null for new entries
-        const newEntry: WhitelistEntry = {
-          ...formData,
-          id: uuidv4(),
-          created_at: new Date().toISOString(),
-          updated_at: null, // Set to null for new entries
-        };
-        
-        setWhitelistData([newEntry, ...whitelistData]);
-        toast.success("Whitelist entry added successfully!");
-      }
-      
-      setIsFormOpen(false);
-      setIsSubmitting(false);
-    }, 500);
-  };
-
-  const handleToggleSwitch = (id: string, field: string, value: boolean) => {
-    const entryToUpdate = whitelistData.find(entry => entry.id === id);
-    
-    if (!entryToUpdate) return;
-    
-    // Create updated entry with new switch value and update the timestamp
-    const updatedEntry = {
-      ...entryToUpdate,
-      [field]: value,
-      updated_at: new Date().toISOString(), // Set updated_at when toggling switches
-    };
-    
-    // Update the entry in the data
-    setWhitelistData(whitelistData.map(entry => 
-      entry.id === id ? updatedEntry : entry
-    ));
-    
-    toast.success(`${field.replace(/_/g, " ")} was ${value ? "enabled" : "disabled"}.`);
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <Card className="border-none shadow-sm">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-            <div>
-              <CardTitle className="text-2xl font-bold">Whitelist Management</CardTitle>
-              <CardDescription>
-                Manage system whitelist entries for testing accounts.
-              </CardDescription>
-            </div>
-            <Button onClick={handleAddEntry} variant="blue">
-              <Plus className="mr-2 h-4 w-4" />
-              Add New Entry
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4 mb-6">
-            <WhitelistSearchBar 
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-            />
-            <WhitelistFilter 
-              onFilter={handleApplyFilters}
-              onClearFilter={handleClearFilters}
-              activeFilters={activeFilters}
-            />
-          </div>
-          
-          <WhitelistTable
-            data={filteredData}
-            onEdit={handleEditEntry}
-            onDelete={handleDeleteEntry}
-            onToggleSwitch={handleToggleSwitch}
-          />
-          
-          {filteredData.length > 0 && (
-            <div className="mt-4 text-sm text-muted-foreground">
-              Showing {filteredData.length} of {whitelistData.length} entries
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Add/Edit Dialog */}
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {currentEntry ? "Edit Whitelist Entry" : "Add Whitelist Entry"}
-            </DialogTitle>
-          </DialogHeader>
-          <WhitelistForm
-            entry={currentEntry}
-            onSubmit={handleFormSubmit}
-            onCancel={() => setIsFormOpen(false)}
-            isSubmitting={isSubmitting}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!entryToDelete} onOpenChange={(open) => !open && setEntryToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the whitelist entry.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+    <div className="border rounded-lg overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Email</TableHead>
+            <TableHead>SSO ID</TableHead>
+            <TableHead className="hidden md:table-cell">Created</TableHead>
+            <TableHead className="hidden md:table-cell">Updated</TableHead>
+            <TableHead>Test Payment</TableHead>
+            <TableHead>Activity API</TableHead>
+            <TableHead>SSO Mock</TableHead>
+            <TableHead className="w-[100px] text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((entry) => (
+            <TableRow key={entry.id}>
+              <TableCell className="font-medium">{entry.email}</TableCell>
+              <TableCell>{entry.sso_id ?? "—"}</TableCell>
+              <TableCell className="hidden md:table-cell">
+                {formatDate(entry.created_at)}
+              </TableCell>
+              <TableCell className="hidden md:table-cell">
+                {formatDate(entry.updated_at)}
+              </TableCell>
+              <TableCell>
+                <Switch 
+                  checked={entry.test_payment_allowed}
+                  onCheckedChange={(checked) => 
+                    onToggleSwitch(entry.id, "test_payment_allowed", checked)
+                  }
+                  className={entry.test_payment_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""}
+                />
+              </TableCell>
+              <TableCell>
+                <Switch 
+                  checked={entry.activity_api}
+                  onCheckedChange={(checked) => 
+                    onToggleSwitch(entry.id, "activity_api", checked)
+                  }
+                  className={entry.activity_api ? "bg-green-500 data-[state=checked]:bg-green-500" : ""}
+                />
+              </TableCell>
+              <TableCell>
+                <Switch 
+                  checked={entry.sso_mock_allowed}
+                  onCheckedChange={(checked) => 
+                    onToggleSwitch(entry.id, "sso_mock_allowed", checked)
+                  }
+                  className={entry.sso_mock_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""}
+                />
+              </TableCell>
+              <TableCell className="flex justify-end gap-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onEdit(entry)}
+                  className="h-8 w-8"
+                >
+                  <Edit className="h-4 w-4 text-blue-500" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => onDelete(entry.id)}
+                  className="h-8 w-8"
+                >
+                  <Trash className="h-4 w-4 text-red-500" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
 
-export default Index;
+export default WhitelistTable;
