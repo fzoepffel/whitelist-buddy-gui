@@ -1,3 +1,4 @@
+
 import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -93,7 +94,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   placeholder="SSO ID" 
                   {...field} 
                   value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value || null)}
+                  onChange={(e) => field.onChange(e.target.value)}
                 />
               </FormControl>
               <FormMessage />
