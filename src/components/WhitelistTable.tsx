@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from "lucide-react";
 
 interface WhitelistTableProps {
@@ -86,7 +85,7 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                 </TableCell>
                 <TableCell>
                   {entry.sso_id ? (
-                    <Badge variant="outline">{entry.sso_id}</Badge>
+                    <span className="font-medium">{entry.sso_id}</span>
                   ) : (
                     <span className="text-muted-foreground text-sm">None</span>
                   )}
