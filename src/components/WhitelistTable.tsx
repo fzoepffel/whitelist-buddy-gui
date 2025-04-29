@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Pencil, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface WhitelistTableProps {
   data: WhitelistEntry[];
@@ -73,6 +74,9 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                     onCheckedChange={(checked) =>
                       onToggleSwitch(entry.id, "test_payment_allowed", checked)
                     }
+                    className={cn(
+                      entry.test_payment_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
                   />
                 </TableCell>
                 <TableCell>
@@ -81,6 +85,9 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                     onCheckedChange={(checked) =>
                       onToggleSwitch(entry.id, "activity_api", checked)
                     }
+                    className={cn(
+                      entry.activity_api ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
                   />
                 </TableCell>
                 <TableCell>
@@ -96,6 +103,9 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                     onCheckedChange={(checked) =>
                       onToggleSwitch(entry.id, "sso_mock_allowed", checked)
                     }
+                    className={cn(
+                      entry.sso_mock_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
                   />
                 </TableCell>
                 <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>

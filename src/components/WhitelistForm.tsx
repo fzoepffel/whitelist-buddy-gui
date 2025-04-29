@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { WhitelistEntry, WhitelistFormData, WhitelistFormInputs } from "@/types/whitelist";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." })
@@ -124,6 +125,9 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    className={cn(
+                      field.value ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
                   />
                 </FormControl>
               </FormItem>
@@ -142,6 +146,9 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    className={cn(
+                      field.value ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
                   />
                 </FormControl>
               </FormItem>
@@ -160,6 +167,9 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
+                    className={cn(
+                      field.value ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
                   />
                 </FormControl>
               </FormItem>
