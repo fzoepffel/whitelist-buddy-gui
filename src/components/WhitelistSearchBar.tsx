@@ -17,7 +17,7 @@ const WhitelistSearchBar: React.FC<WhitelistSearchBarProps> = ({
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
       <Input
         type="text"
-        placeholder="Search by email or SSO ID..."
+        placeholder="Nach E-Mail oder SSO ID suchen..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="pl-9 w-full"

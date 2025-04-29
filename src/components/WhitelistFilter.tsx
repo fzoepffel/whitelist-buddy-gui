@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Filter, X } from "lucide-react";
 import {
@@ -88,10 +87,10 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
             onValueChange={setSelectedField}
           >
             <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Select field" />
+              <SelectValue placeholder="Feld auswählen" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="test_payment_allowed">Test Payment</SelectItem>
+              <SelectItem value="test_payment_allowed">Testzahlung</SelectItem>
               <SelectItem value="activity_api">Activity API</SelectItem>
               <SelectItem value="sso_mock_allowed">SSO Mock</SelectItem>
             </SelectContent>
@@ -102,11 +101,11 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
             onValueChange={setSelectedValue}
           >
             <SelectTrigger className="w-full sm:w-[140px]">
-              <SelectValue placeholder="Select status" />
+              <SelectValue placeholder="Status auswählen" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="enabled">Enabled</SelectItem>
-              <SelectItem value="disabled">Disabled</SelectItem>
+              <SelectItem value="enabled">Aktiviert</SelectItem>
+              <SelectItem value="disabled">Deaktiviert</SelectItem>
             </SelectContent>
           </Select>
 
@@ -114,18 +113,19 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
             variant="outline" 
             size="sm"
             onClick={handleApplyFilter}
+            className="text-blue-500 border-blue-500 hover:bg-blue-50 hover:text-blue-700"
           >
-            Add Filter
+            Filter hinzufügen
           </Button>
           
           {activeFilters.length > 0 && (
             <Button 
               variant="ghost" 
               size="sm"
-              className="ml-auto"
+              className="ml-auto text-blue-500 hover:text-blue-700"
               onClick={onClearFilter}
             >
-              Clear All
+              Alle löschen
             </Button>
           )}
         </div>
@@ -143,7 +143,7 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-4 w-4 ml-1 p-0" 
+                className="h-4 w-4 ml-1 p-0 text-blue-500 hover:text-blue-700" 
                 onClick={() => handleRemoveFilter(filter.field, filter.value)}
               >
                 <X className="h-3 w-3" />

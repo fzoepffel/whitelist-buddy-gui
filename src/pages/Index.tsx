@@ -27,6 +27,8 @@ const Index = () => {
   const [currentEntry, setCurrentEntry] = useState<WhitelistEntry | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Load initial data
   useEffect(() => {
@@ -64,19 +66,31 @@ const Index = () => {
     setFilteredData(result);
   }, [searchQuery, whitelistData, activeFilters]);
 
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  // Reset to first page when filters or search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeFilters]);
+
   const handleApplyFilters = (filters: FilterOption[]) => {
     setActiveFilters(filters);
     if (filters.length === 1) {
       const filter = filters[0];
-      toast.info(`Filter applied: ${filter.field} ${filter.value ? '(enabled)' : '(disabled)'}`);
+      toast.info(`Filter angewendet: ${filter.field} ${filter.value ? '(aktiviert)' : '(deaktiviert)'}`);
     } else {
-      toast.info(`${filters.length} filters applied`);
+      toast.info(`${filters.length} Filter angewendet`);
     }
   };
 
   const handleClearFilters = () => {
     setActiveFilters([]);
-    toast.info("All filters cleared");
+    toast.info("Alle Filter entfernt");
   };
 
   const handleAddEntry = () => {
@@ -97,7 +111,7 @@ const Index = () => {
     if (!entryToDelete) return;
     
     setWhitelistData(whitelistData.filter(entry => entry.id !== entryToDelete));
-    toast.success("Whitelist entry deleted successfully!");
+    toast.success("Whitelist-Eintrag erfolgreich gelöscht!");
     setEntryToDelete(null);
   };
 
@@ -118,7 +132,7 @@ const Index = () => {
           entry.id === currentEntry.id ? updated : entry
         ));
         
-        toast.success("Whitelist entry updated successfully!");
+        toast.success("Whitelist-Eintrag erfolgreich aktualisiert!");
       } else {
         // Add new entry - updated_at is null for new entries
         const newEntry: WhitelistEntry = {
@@ -129,7 +143,7 @@ const Index = () => {
         };
         
         setWhitelistData([newEntry, ...whitelistData]);
-        toast.success("Whitelist entry added successfully!");
+        toast.success("Whitelist-Eintrag erfolgreich hinzugefügt!");
       }
       
       setIsFormOpen(false);
@@ -155,7 +169,7 @@ const Index = () => {
       entry.id === id ? updatedEntry : entry
     ));
     
-    toast.success(`${field.replace(/_/g, " ")} was ${value ? "enabled" : "disabled"}.`);
+    toast.success(`${field.replace(/_/g, " ")} wurde ${value ? "aktiviert" : "deaktiviert"}.`);
   };
 
   return (
@@ -164,14 +178,14 @@ const Index = () => {
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div>
-              <CardTitle className="text-2xl font-bold">Whitelist Management</CardTitle>
+              <CardTitle className="text-2xl font-bold">Whitelist-Verwaltung</CardTitle>
               <CardDescription>
-                Manage system whitelist entries for testing accounts.
+                Verwalten Sie Whitelist-Einträge für Testkonten.
               </CardDescription>
             </div>
-            <Button onClick={handleAddEntry}>
+            <Button onClick={handleAddEntry} className="bg-blue-500 hover:bg-blue-700">
               <Plus className="mr-2 h-4 w-4" />
-              Add New Entry
+              Neuen Eintrag hinzufügen
             </Button>
           </div>
         </CardHeader>
@@ -192,12 +206,15 @@ const Index = () => {
             data={filteredData}
             onEdit={handleEditEntry}
             onDelete={handleDeleteEntry}
-            onToggleSwitch={handleToggleSwitch} // We'll still pass this prop but it won't be used
+            onToggleSwitch={handleToggleSwitch}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
           
           {filteredData.length > 0 && (
             <div className="mt-4 text-sm text-muted-foreground">
-              Showing {filteredData.length} of {whitelistData.length} entries
+              Zeige {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredData.length)} bis {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} von {filteredData.length} Einträgen
             </div>
           )}
         </CardContent>
@@ -208,7 +225,7 @@ const Index = () => {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {currentEntry ? "Edit Whitelist Entry" : "Add Whitelist Entry"}
+              {currentEntry ? "Whitelist-Eintrag bearbeiten" : "Whitelist-Eintrag hinzufügen"}
             </DialogTitle>
           </DialogHeader>
           <WhitelistForm
@@ -216,6 +233,7 @@ const Index = () => {
             onSubmit={handleFormSubmit}
             onCancel={() => setIsFormOpen(false)}
             isSubmitting={isSubmitting}
+            existingEntries={whitelistData}
           />
         </DialogContent>
       </Dialog>
@@ -224,15 +242,15 @@ const Index = () => {
       <AlertDialog open={!!entryToDelete} onOpenChange={(open) => !open && setEntryToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Sind Sie sicher?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the whitelist entry.
+              Diese Aktion kann nicht rückgängig gemacht werden. Der Whitelist-Eintrag wird dauerhaft gelöscht.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
+              Löschen
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
