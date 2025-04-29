@@ -51,7 +51,8 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
       email: entry?.email || "",
       test_payment_allowed: entry?.test_payment_allowed || false,
       activity_api: entry?.activity_api || false,
-      sso_id: entry?.sso_id?.toString() || "",
+      // Convert number to string for the input field
+      sso_id: entry?.sso_id !== null ? entry.sso_id.toString() : "",
       sso_mock_allowed: entry?.sso_mock_allowed || false,
     }
   });
@@ -62,7 +63,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
       email: values.email,
       test_payment_allowed: values.test_payment_allowed,
       activity_api: values.activity_api,
-      sso_id: values.sso_id,
+      sso_id: values.sso_id, // This is now correctly transformed by Zod
       sso_mock_allowed: values.sso_mock_allowed,
     };
     
