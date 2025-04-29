@@ -31,6 +31,9 @@ const formSchema = z.object({
   sso_mock_allowed: z.boolean(),
 });
 
+// Define the type for the form values based on the schema
+type FormValues = z.infer<typeof formSchema>;
+
 interface WhitelistFormProps {
   entry?: WhitelistEntry;
   onSubmit: (data: WhitelistFormData) => void;
@@ -45,19 +48,19 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
   isSubmitting
 }) => {
   // Define the form with proper types
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: entry?.email || "",
       test_payment_allowed: entry?.test_payment_allowed || false,
       activity_api: entry?.activity_api || false,
-      // Convert number to string for the input field
+      // Convert number to string for the input field - this is where the type error was
       sso_id: entry?.sso_id !== null ? entry.sso_id.toString() : "",
       sso_mock_allowed: entry?.sso_mock_allowed || false,
     }
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = (values: FormValues) => {
     // Convert the form data to the expected format
     const formData: WhitelistFormData = {
       email: values.email,
