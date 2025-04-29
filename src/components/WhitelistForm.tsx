@@ -1,4 +1,3 @@
-
 import React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -54,8 +53,8 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
       email: entry?.email || "",
       test_payment_allowed: entry?.test_payment_allowed || false,
       activity_api: entry?.activity_api || false,
-      // Convert number to string for the input field - this is where the type error was
-      sso_id: entry?.sso_id !== null ? entry.sso_id.toString() : "",
+      // Convert number to string for the input field
+      sso_id: entry?.sso_id !== null && entry?.sso_id !== undefined ? String(entry.sso_id) : "",
       sso_mock_allowed: entry?.sso_mock_allowed || false,
     }
   });
