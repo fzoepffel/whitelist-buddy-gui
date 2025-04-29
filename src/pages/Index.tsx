@@ -13,11 +13,16 @@ import WhitelistFilter from "@/components/WhitelistFilter";
 import { mockWhitelistData } from "@/utils/mockData";
 import { Plus } from "lucide-react";
 
+interface FilterOption {
+  field: string;
+  value: boolean | null;
+}
+
 const Index = () => {
   const [whitelistData, setWhitelistData] = useState<WhitelistEntry[]>([]);
   const [filteredData, setFilteredData] = useState<WhitelistEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<{ field: string; value: boolean | null } | null>(null);
+  const [activeFilters, setActiveFilters] = useState<FilterOption[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentEntry, setCurrentEntry] = useState<WhitelistEntry | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +35,7 @@ const Index = () => {
     setFilteredData(mockWhitelistData);
   }, []);
 
-  // Filter data based on search query and active filter
+  // Filter data based on search query and active filters
   useEffect(() => {
     let result = whitelistData;
     
@@ -45,26 +50,33 @@ const Index = () => {
       );
     }
     
-    // Apply field filter if active
-    if (activeFilter) {
-      const { field, value } = activeFilter;
-      // Only filter if a specific value is selected (not "all")
-      if (value !== null) {
-        result = result.filter(entry => entry[field as keyof WhitelistEntry] === value);
-      }
+    // Apply multiple field filters if active
+    if (activeFilters.length > 0) {
+      // Filter entries that match ALL of the active filters
+      result = result.filter(entry => {
+        return activeFilters.every(filter => {
+          const fieldName = filter.field as keyof WhitelistEntry;
+          return entry[fieldName] === filter.value;
+        });
+      });
     }
     
     setFilteredData(result);
-  }, [searchQuery, whitelistData, activeFilter]);
+  }, [searchQuery, whitelistData, activeFilters]);
 
-  const handleApplyFilter = (filter: { field: string; value: boolean | null }) => {
-    setActiveFilter(filter);
-    toast.info(`Filter applied: ${filter.field} ${filter.value === null ? '(all)' : filter.value ? '(enabled)' : '(disabled)'}`);
+  const handleApplyFilters = (filters: FilterOption[]) => {
+    setActiveFilters(filters);
+    if (filters.length === 1) {
+      const filter = filters[0];
+      toast.info(`Filter applied: ${filter.field} ${filter.value ? '(enabled)' : '(disabled)'}`);
+    } else {
+      toast.info(`${filters.length} filters applied`);
+    }
   };
 
-  const handleClearFilter = () => {
-    setActiveFilter(null);
-    toast.info("Filter cleared");
+  const handleClearFilters = () => {
+    setActiveFilters([]);
+    toast.info("All filters cleared");
   };
 
   const handleAddEntry = () => {
@@ -169,9 +181,9 @@ const Index = () => {
               setSearchQuery={setSearchQuery}
             />
             <WhitelistFilter 
-              onFilter={handleApplyFilter}
-              onClearFilter={handleClearFilter}
-              activeFilter={activeFilter}
+              onFilter={handleApplyFilters}
+              onClearFilter={handleClearFilters}
+              activeFilters={activeFilters}
             />
           </div>
           
