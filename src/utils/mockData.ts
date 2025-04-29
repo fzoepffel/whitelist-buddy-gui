@@ -7,7 +7,7 @@ export const mockWhitelistData: WhitelistEntry[] = [
     email: "test1@check24.de",
     test_payment_allowed: true,
     created_at: "2023-01-15T09:30:00",
-    updated_at: "2023-01-15T09:30:00",
+    updated_at: null,  // New entry, never updated
     activity_api: true,
     sso_id: 1001,
     sso_mock_allowed: true
@@ -17,7 +17,7 @@ export const mockWhitelistData: WhitelistEntry[] = [
     email: "test2@check24.de",
     test_payment_allowed: false,
     created_at: "2023-02-20T14:15:00",
-    updated_at: "2023-03-10T11:45:00",
+    updated_at: "2023-03-10T11:45:00",  // This entry was updated
     activity_api: true,
     sso_id: 1002,
     sso_mock_allowed: false
@@ -27,7 +27,7 @@ export const mockWhitelistData: WhitelistEntry[] = [
     email: "dev@check24.de",
     test_payment_allowed: true,
     created_at: "2023-03-05T10:00:00",
-    updated_at: "2023-03-05T10:00:00",
+    updated_at: null,  // New entry, never updated
     activity_api: false,
     sso_id: null,
     sso_mock_allowed: true
@@ -37,7 +37,7 @@ export const mockWhitelistData: WhitelistEntry[] = [
     email: "qa@check24.de",
     test_payment_allowed: true,
     created_at: "2023-04-12T16:20:00",
-    updated_at: "2023-04-22T09:10:00",
+    updated_at: "2023-04-22T09:10:00",  // This entry was updated
     activity_api: true,
     sso_id: 1003,
     sso_mock_allowed: true
@@ -47,7 +47,7 @@ export const mockWhitelistData: WhitelistEntry[] = [
     email: "demo@check24.de",
     test_payment_allowed: false,
     created_at: "2023-05-08T13:40:00",
-    updated_at: "2023-05-08T13:40:00",
+    updated_at: null,  // New entry, never updated
     activity_api: false,
     sso_id: 1004,
     sso_mock_allowed: false

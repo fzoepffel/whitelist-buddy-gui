@@ -28,7 +28,9 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
   onDelete,
   onToggleSwitch,
 }) => {
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Never updated";
+    
     try {
       return format(new Date(dateString), "MMM d, yyyy h:mm a");
     } catch (error) {
@@ -98,7 +100,11 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                   />
                 </TableCell>
                 <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
-                <TableCell className="text-sm">{formatDate(entry.updated_at)}</TableCell>
+                <TableCell className="text-sm">
+                  {entry.updated_at ? formatDate(entry.updated_at) : (
+                    <span className="text-muted-foreground">Never updated</span>
+                  )}
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-1">
                     <Button

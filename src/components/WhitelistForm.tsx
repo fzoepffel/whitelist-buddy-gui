@@ -44,21 +44,15 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
   onCancel,
   isSubmitting
 }) => {
-  // The key fix is here - we make sure sso_id is properly typed as a string in the form
+  // Define the form with proper types
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: entry ? {
-      email: entry.email,
-      test_payment_allowed: entry.test_payment_allowed,
-      activity_api: entry.activity_api,
-      sso_id: entry.sso_id?.toString() || "",
-      sso_mock_allowed: entry.sso_mock_allowed,
-    } : {
-      email: "",
-      test_payment_allowed: false,
-      activity_api: false,
-      sso_id: "",
-      sso_mock_allowed: false,
+    defaultValues: {
+      email: entry?.email || "",
+      test_payment_allowed: entry?.test_payment_allowed || false,
+      activity_api: entry?.activity_api || false,
+      sso_id: entry?.sso_id?.toString() || "",
+      sso_mock_allowed: entry?.sso_mock_allowed || false,
     }
   });
 

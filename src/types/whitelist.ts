@@ -4,7 +4,7 @@ export interface WhitelistEntry {
   email: string;
   test_payment_allowed: boolean;
   created_at: string;
-  updated_at: string;
+  updated_at: string | null;
   activity_api: boolean;
   sso_id: number | null;
   sso_mock_allowed: boolean;

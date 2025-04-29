@@ -95,7 +95,7 @@ const Index = () => {
     // Simulate API call delay
     setTimeout(() => {
       if (currentEntry) {
-        // Update existing entry
+        // Update existing entry - set updated_at to current timestamp
         const updated: WhitelistEntry = {
           ...currentEntry,
           ...formData,
@@ -108,12 +108,12 @@ const Index = () => {
         
         toast.success("Whitelist entry updated successfully!");
       } else {
-        // Add new entry
+        // Add new entry - updated_at is null for new entries
         const newEntry: WhitelistEntry = {
           ...formData,
           id: uuidv4(),
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          updated_at: null, // Set to null for new entries
         };
         
         setWhitelistData([newEntry, ...whitelistData]);
@@ -130,11 +130,11 @@ const Index = () => {
     
     if (!entryToUpdate) return;
     
-    // Create updated entry with new switch value
+    // Create updated entry with new switch value and update the timestamp
     const updatedEntry = {
       ...entryToUpdate,
       [field]: value,
-      updated_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(), // Set updated_at when toggling switches
     };
     
     // Update the entry in the data
