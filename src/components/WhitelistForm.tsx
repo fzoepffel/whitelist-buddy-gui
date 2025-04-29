@@ -9,7 +9,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { WhitelistEntry, WhitelistFormData, WhitelistFormInputs } from "@/types/whitelist";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
@@ -181,7 +180,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           <Button variant="outline" type="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button variant="blue" type="submit" disabled={isSubmitting}>
             {entry ? "Update" : "Add"} Whitelist Entry
           </Button>
         </div>

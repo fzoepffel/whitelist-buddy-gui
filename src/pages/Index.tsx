@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
 import WhitelistTable from "@/components/WhitelistTable";
@@ -169,7 +169,7 @@ const Index = () => {
                 Manage system whitelist entries for testing accounts.
               </CardDescription>
             </div>
-            <Button onClick={handleAddEntry} className="bg-blue-500 hover:bg-blue-700">
+            <Button onClick={handleAddEntry} variant="blue">
               <Plus className="mr-2 h-4 w-4" />
               Add New Entry
             </Button>
@@ -210,6 +210,9 @@ const Index = () => {
             <DialogTitle>
               {currentEntry ? "Edit Whitelist Entry" : "Add Whitelist Entry"}
             </DialogTitle>
+            <DialogDescription>
+              {currentEntry ? "Edit existing whitelist entry details." : "Add a new whitelist entry to the system."}
+            </DialogDescription>
           </DialogHeader>
           <WhitelistForm
             entry={currentEntry}
