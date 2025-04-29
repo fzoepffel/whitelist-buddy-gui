@@ -41,6 +41,7 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[180px]">ID</TableHead>
             <TableHead className="w-[250px]">Email</TableHead>
             <TableHead>Test Payment</TableHead>
             <TableHead>Activity API</TableHead>
@@ -54,13 +55,16 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
                 No whitelist entries found.
               </TableCell>
             </TableRow>
           ) : (
             data.map((entry) => (
               <TableRow key={entry.id}>
+                <TableCell className="font-mono text-xs truncate" title={entry.id}>
+                  {entry.id.substring(0, 8)}...
+                </TableCell>
                 <TableCell className="font-medium">{entry.email}</TableCell>
                 <TableCell>
                   <Switch

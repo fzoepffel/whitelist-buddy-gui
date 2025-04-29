@@ -12,13 +12,22 @@ import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
 import { toast } from "sonner";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  email: z.string().email({ message: "Please enter a valid email address." })
+    .refine(email => email.endsWith('@check24.de'), {
+      message: "Email must be a @check24.de address"
+    }),
   test_payment_allowed: z.boolean(),
   activity_api: z.boolean(),
-  sso_id: z.string().transform((val) => {
-    const num = parseInt(val);
-    return isNaN(num) ? null : num;
-  }).nullable(),
+  sso_id: z.string()
+    .transform((val) => {
+      if (!val) return null;
+      const num = parseInt(val);
+      return isNaN(num) ? null : num;
+    })
+    .nullable()
+    .refine(val => val === null || (val >= 1 && val <= 2147483647), {
+      message: "SSO ID must be between 1 and 2147483647"
+    }),
   sso_mock_allowed: z.boolean(),
 });
 
@@ -35,6 +44,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
   onCancel,
   isSubmitting
 }) => {
+  // The key fix is here - we make sure sso_id is properly typed as a string in the form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: entry ? {
@@ -75,7 +85,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="user@company.com" {...field} />
+                <Input placeholder="user@check24.de" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
