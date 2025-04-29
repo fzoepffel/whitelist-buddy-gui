@@ -70,17 +70,15 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                 <TableCell>
                   <Switch
                     checked={entry.test_payment_allowed}
-                    onCheckedChange={(checked) =>
-                      onToggleSwitch(entry.id, "test_payment_allowed", checked)
-                    }
+                    disabled={true}
+                    className="cursor-not-allowed opacity-70"
                   />
                 </TableCell>
                 <TableCell>
                   <Switch
                     checked={entry.activity_api}
-                    onCheckedChange={(checked) =>
-                      onToggleSwitch(entry.id, "activity_api", checked)
-                    }
+                    disabled={true}
+                    className="cursor-not-allowed opacity-70"
                   />
                 </TableCell>
                 <TableCell>
@@ -93,9 +91,8 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                 <TableCell>
                   <Switch
                     checked={entry.sso_mock_allowed}
-                    onCheckedChange={(checked) =>
-                      onToggleSwitch(entry.id, "sso_mock_allowed", checked)
-                    }
+                    disabled={true}
+                    className="cursor-not-allowed opacity-70"
                   />
                 </TableCell>
                 <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>

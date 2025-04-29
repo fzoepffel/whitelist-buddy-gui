@@ -137,6 +137,7 @@ const Index = () => {
     }, 500);
   };
 
+  // This function is still defined but won't be used in the table anymore
   const handleToggleSwitch = (id: string, field: string, value: boolean) => {
     const entryToUpdate = whitelistData.find(entry => entry.id === id);
     
@@ -191,7 +192,7 @@ const Index = () => {
             data={filteredData}
             onEdit={handleEditEntry}
             onDelete={handleDeleteEntry}
-            onToggleSwitch={handleToggleSwitch}
+            onToggleSwitch={handleToggleSwitch} // We'll still pass this prop but it won't be used
           />
           
           {filteredData.length > 0 && (
