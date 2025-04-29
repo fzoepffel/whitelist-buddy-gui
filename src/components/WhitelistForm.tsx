@@ -1,182 +1,130 @@
-
 import React from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { WhitelistEntry } from "@/types/whitelist";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
-import { toast } from "sonner";
+import { Pencil, Trash2 } from "lucide-react";
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." })
-    .refine(email => email.endsWith('@check24.de'), {
-      message: "Email must be a @check24.de address"
-    }),
-  test_payment_allowed: z.boolean(),
-  activity_api: z.boolean(),
-  sso_id: z.string()
-    .transform((val) => {
-      if (!val) return null;
-      const num = parseInt(val);
-      return isNaN(num) ? null : num;
-    })
-    .nullable()
-    .refine(val => val === null || (val >= 1 && val <= 2147483647), {
-      message: "SSO ID must be between 1 and 2147483647"
-    }),
-  sso_mock_allowed: z.boolean(),
-});
-
-// Define the type for the form values based on the schema
-type FormValues = z.infer<typeof formSchema>;
-
-interface WhitelistFormProps {
-  entry?: WhitelistEntry;
-  onSubmit: (data: WhitelistFormData) => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
+interface WhitelistTableProps {
+  data: WhitelistEntry[];
+  onEdit: (entry: WhitelistEntry) => void;
+  onDelete: (id: string) => void;
+  onToggleSwitch: (id: string, field: string, value: boolean) => void;
 }
 
-const WhitelistForm: React.FC<WhitelistFormProps> = ({
-  entry,
-  onSubmit,
-  onCancel,
-  isSubmitting
+const WhitelistTable: React.FC<WhitelistTableProps> = ({
+  data,
+  onEdit,
+  onDelete,
+  onToggleSwitch,
 }) => {
-  // Define the form with proper types
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: entry?.email || "",
-      test_payment_allowed: entry?.test_payment_allowed || false,
-      activity_api: entry?.activity_api || false,
-      // Convert number to string for the input field
-      sso_id: entry?.sso_id ? String(entry.sso_id) : "",
-      sso_mock_allowed: entry?.sso_mock_allowed || false,
-    }
-  });
-
-  const handleSubmit = (values: FormValues) => {
-    // Convert the form data to the expected format
-    const formData: WhitelistFormData = {
-      email: values.email,
-      test_payment_allowed: values.test_payment_allowed,
-      activity_api: values.activity_api,
-      sso_id: values.sso_id, // This has been transformed by Zod to the correct type
-      sso_mock_allowed: values.sso_mock_allowed,
-    };
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Never updated";
     
-    onSubmit(formData);
+    try {
+      return format(new Date(dateString), "MMM d, yyyy h:mm a");
+    } catch (error) {
+      return "Invalid Date";
+    }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="user@check24.de" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[180px]">ID</TableHead>
+            <TableHead className="w-[250px]">Email</TableHead>
+            <TableHead>SSO ID</TableHead>
+            <TableHead>Test Payment</TableHead>
+            <TableHead>Activity API</TableHead>
+            <TableHead>SSO Mock</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead>Updated</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                No whitelist entries found.
+              </TableCell>
+            </TableRow>
+          ) : (
+            data.map((entry) => (
+              <TableRow key={entry.id}>
+                <TableCell className="font-mono text-xs truncate" title={entry.id}>
+                  {entry.id.substring(0, 8)}...
+                </TableCell>
+                <TableCell className="font-medium">{entry.email}</TableCell>
+                <TableCell>
+                  {entry.sso_id ? (
+                    <span className="font-medium">{entry.sso_id}</span>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">None</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={entry.test_payment_allowed}
+                    disabled={true}
+                    className="cursor-not-allowed opacity-70"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={entry.activity_api}
+                    disabled={true}
+                    className="cursor-not-allowed opacity-70"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={entry.sso_mock_allowed}
+                    disabled={true}
+                    className="cursor-not-allowed opacity-70"
+                  />
+                </TableCell>
+                <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
+                <TableCell className="text-sm">
+                  {entry.updated_at ? formatDate(entry.updated_at) : (
+                    <span className="text-muted-foreground">Never updated</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(entry)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDelete(entry.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
           )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="sso_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>SSO ID (optional)</FormLabel>
-              <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="SSO ID" 
-                  {...field} 
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="test_payment_allowed"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between space-x-2 rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>Test Payment Allowed</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="activity_api"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between space-x-2 rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>Activity API</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="sso_mock_allowed"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between space-x-2 rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>SSO Mock Allowed</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline" type="button" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {entry ? "Update" : "Add"} Whitelist Entry
-          </Button>
-        </div>
-      </form>
-    </Form>
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
-export default WhitelistForm;
+export default WhitelistTable;
