@@ -24,7 +24,7 @@ interface WhitelistFormProps {
 }
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
+  email: z.string().email({ message: "Bitte geben Sie eine gültige E-Mail-Adresse ein" }),
   test_payment_allowed: z.boolean().default(false),
   activity_api: z.boolean().default(false),
   sso_id: z.union([z.number().int().positive().nullable(), z.literal("")])
@@ -63,9 +63,9 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="email">Email</FormLabel>
+              <FormLabel htmlFor="email">E-Mail</FormLabel>
               <FormControl>
-                <Input id="email" placeholder="user@example.com" {...field} />
+                <Input id="email" placeholder="nutzer@beispiel.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -102,7 +102,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <FormLabel className="text-base">Test Payment</FormLabel>
+                <FormLabel className="text-base">Testzahlung</FormLabel>
               </div>
               <FormControl>
                 <Switch
@@ -120,7 +120,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <FormLabel className="text-base">Activity API</FormLabel>
+                <FormLabel className="text-base">Aktivitäts-API</FormLabel>
               </div>
               <FormControl>
                 <Switch
@@ -157,10 +157,10 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
             onClick={onCancel}
             disabled={isSubmitting}
           >
-            Cancel
+            Abbrechen
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : entry ? "Update" : "Create"}
+            {isSubmitting ? "Speichern..." : entry ? "Aktualisieren" : "Erstellen"}
           </Button>
         </div>
       </form>
