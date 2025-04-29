@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +9,7 @@ import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
 import WhitelistTable from "@/components/WhitelistTable";
 import WhitelistForm from "@/components/WhitelistForm";
 import WhitelistSearchBar from "@/components/WhitelistSearchBar";
+import WhitelistFilter from "@/components/WhitelistFilter";
 import { mockWhitelistData } from "@/utils/mockData";
 import { Plus } from "lucide-react";
 
@@ -17,6 +17,7 @@ const Index = () => {
   const [whitelistData, setWhitelistData] = useState<WhitelistEntry[]>([]);
   const [filteredData, setFilteredData] = useState<WhitelistEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<{ field: string; value: boolean | null } | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentEntry, setCurrentEntry] = useState<WhitelistEntry | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,23 +30,42 @@ const Index = () => {
     setFilteredData(mockWhitelistData);
   }, []);
 
-  // Filter data based on search query
+  // Filter data based on search query and active filter
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredData(whitelistData);
-      return;
-    }
-
-    const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = whitelistData.filter(
-      (entry) =>
-        entry.email.toLowerCase().includes(lowerCaseQuery) ||
-        (entry.sso_id !== null && 
-         entry.sso_id.toString().includes(lowerCaseQuery))
-    );
+    let result = whitelistData;
     
-    setFilteredData(filtered);
-  }, [searchQuery, whitelistData]);
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      result = result.filter(
+        (entry) =>
+          entry.email.toLowerCase().includes(lowerCaseQuery) ||
+          (entry.sso_id !== null && 
+           entry.sso_id.toString().includes(lowerCaseQuery))
+      );
+    }
+    
+    // Apply field filter if active
+    if (activeFilter) {
+      const { field, value } = activeFilter;
+      // Only filter if a specific value is selected (not "all")
+      if (value !== null) {
+        result = result.filter(entry => entry[field as keyof WhitelistEntry] === value);
+      }
+    }
+    
+    setFilteredData(result);
+  }, [searchQuery, whitelistData, activeFilter]);
+
+  const handleApplyFilter = (filter: { field: string; value: boolean | null }) => {
+    setActiveFilter(filter);
+    toast.info(`Filter applied: ${filter.field} ${filter.value === null ? '(all)' : filter.value ? '(enabled)' : '(disabled)'}`);
+  };
+
+  const handleClearFilter = () => {
+    setActiveFilter(null);
+    toast.info("Filter cleared");
+  };
 
   const handleAddEntry = () => {
     setCurrentEntry(undefined);
@@ -143,10 +163,15 @@ const Index = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="mb-6">
+          <div className="space-y-4 mb-6">
             <WhitelistSearchBar 
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
+            />
+            <WhitelistFilter 
+              onFilter={handleApplyFilter}
+              onClearFilter={handleClearFilter}
+              activeFilter={activeFilter}
             />
           </div>
           
