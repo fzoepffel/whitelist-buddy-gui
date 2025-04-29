@@ -114,6 +114,7 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
             variant="outline" 
             size="sm"
             onClick={handleApplyFilter}
+            className="text-blue-500 border-blue-500 hover:bg-blue-50 hover:text-blue-700"
           >
             Add Filter
           </Button>

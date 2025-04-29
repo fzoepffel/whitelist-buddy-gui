@@ -120,6 +120,7 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={() => onEdit(entry)}
+                      className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>

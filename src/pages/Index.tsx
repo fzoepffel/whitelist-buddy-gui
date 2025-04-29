@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
@@ -168,7 +169,7 @@ const Index = () => {
                 Manage system whitelist entries for testing accounts.
               </CardDescription>
             </div>
-            <Button onClick={handleAddEntry}>
+            <Button onClick={handleAddEntry} className="bg-blue-500 hover:bg-blue-700">
               <Plus className="mr-2 h-4 w-4" />
               Add New Entry
             </Button>
