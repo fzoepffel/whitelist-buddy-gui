@@ -1,7 +1,8 @@
 
 import React from "react";
-import { Edit, Trash } from "lucide-react";
-import { 
+import { format } from "date-fns";
+import { WhitelistEntry } from "@/types/whitelist";
+import {
   Table,
   TableBody,
   TableCell,
@@ -11,9 +12,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { WhitelistEntry } from "@/types/whitelist";
+import { Pencil, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// Define the props interface for the component
 interface WhitelistTableProps {
   data: WhitelistEntry[];
   onEdit: (entry: WhitelistEntry) => void;
@@ -21,104 +22,120 @@ interface WhitelistTableProps {
   onToggleSwitch: (id: string, field: string, value: boolean) => void;
 }
 
-const WhitelistTable: React.FC<WhitelistTableProps> = ({ 
-  data, 
-  onEdit, 
-  onDelete, 
-  onToggleSwitch 
+const WhitelistTable: React.FC<WhitelistTableProps> = ({
+  data,
+  onEdit,
+  onDelete,
+  onToggleSwitch,
 }) => {
-  if (data.length === 0) {
-    return (
-      <div className="text-center py-12 border rounded-lg bg-muted/20">
-        <p className="text-muted-foreground">
-          No whitelist entries found.
-        </p>
-      </div>
-    );
-  }
-
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "—";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+    if (!dateString) return "Never updated";
+    
+    try {
+      return format(new Date(dateString), "MMM d, yyyy h:mm a");
+    } catch (error) {
+      return "Invalid Date";
+    }
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Email</TableHead>
-            <TableHead>SSO ID</TableHead>
-            <TableHead className="hidden md:table-cell">Created</TableHead>
-            <TableHead className="hidden md:table-cell">Updated</TableHead>
+            <TableHead className="w-[180px]">ID</TableHead>
+            <TableHead className="w-[250px]">Email</TableHead>
             <TableHead>Test Payment</TableHead>
             <TableHead>Activity API</TableHead>
+            <TableHead>SSO ID</TableHead>
             <TableHead>SSO Mock</TableHead>
-            <TableHead className="w-[100px] text-right">Actions</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead>Updated</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((entry) => (
-            <TableRow key={entry.id}>
-              <TableCell className="font-medium">{entry.email}</TableCell>
-              <TableCell>{entry.sso_id ?? "—"}</TableCell>
-              <TableCell className="hidden md:table-cell">
-                {formatDate(entry.created_at)}
-              </TableCell>
-              <TableCell className="hidden md:table-cell">
-                {formatDate(entry.updated_at)}
-              </TableCell>
-              <TableCell>
-                <Switch 
-                  checked={entry.test_payment_allowed}
-                  onCheckedChange={(checked) => 
-                    onToggleSwitch(entry.id, "test_payment_allowed", checked)
-                  }
-                  className={entry.test_payment_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""}
-                />
-              </TableCell>
-              <TableCell>
-                <Switch 
-                  checked={entry.activity_api}
-                  onCheckedChange={(checked) => 
-                    onToggleSwitch(entry.id, "activity_api", checked)
-                  }
-                  className={entry.activity_api ? "bg-green-500 data-[state=checked]:bg-green-500" : ""}
-                />
-              </TableCell>
-              <TableCell>
-                <Switch 
-                  checked={entry.sso_mock_allowed}
-                  onCheckedChange={(checked) => 
-                    onToggleSwitch(entry.id, "sso_mock_allowed", checked)
-                  }
-                  className={entry.sso_mock_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""}
-                />
-              </TableCell>
-              <TableCell className="flex justify-end gap-1">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onEdit(entry)}
-                  className="h-8 w-8"
-                >
-                  <Edit className="h-4 w-4 text-blue-500" />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => onDelete(entry.id)}
-                  className="h-8 w-8"
-                >
-                  <Trash className="h-4 w-4 text-red-500" />
-                </Button>
+          {data.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                No whitelist entries found.
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            data.map((entry) => (
+              <TableRow key={entry.id}>
+                <TableCell className="font-mono text-xs truncate" title={entry.id}>
+                  {entry.id.substring(0, 8)}...
+                </TableCell>
+                <TableCell className="font-medium">{entry.email}</TableCell>
+                <TableCell>
+                  <Switch
+                    checked={entry.test_payment_allowed}
+                    onCheckedChange={(checked) =>
+                      onToggleSwitch(entry.id, "test_payment_allowed", checked)
+                    }
+                    className={cn(
+                      entry.test_payment_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={entry.activity_api}
+                    onCheckedChange={(checked) =>
+                      onToggleSwitch(entry.id, "activity_api", checked)
+                    }
+                    className={cn(
+                      entry.activity_api ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  {entry.sso_id ? (
+                    <span className="font-medium">{entry.sso_id}</span>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">None</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Switch
+                    checked={entry.sso_mock_allowed}
+                    onCheckedChange={(checked) =>
+                      onToggleSwitch(entry.id, "sso_mock_allowed", checked)
+                    }
+                    className={cn(
+                      entry.sso_mock_allowed ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
+                    )}
+                  />
+                </TableCell>
+                <TableCell className="text-sm">{formatDate(entry.created_at)}</TableCell>
+                <TableCell className="text-sm">
+                  {entry.updated_at ? formatDate(entry.updated_at) : (
+                    <span className="text-muted-foreground">Never updated</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(entry)}
+                      className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDelete(entry.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
