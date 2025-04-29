@@ -1,20 +1,38 @@
 
 import React from "react";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
+import { toast } from "sonner";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address." })
+    .refine(email => email.endsWith('@check24.de'), {
+      message: "Email must be a @check24.de address"
+    }),
+  test_payment_allowed: z.boolean(),
+  activity_api: z.boolean(),
+  sso_id: z.string()
+    .transform((val) => {
+      if (!val) return null;
+      const num = parseInt(val);
+      return isNaN(num) ? null : num;
+    })
+    .nullable()
+    .refine(val => val === null || (val >= 1 && val <= 2147483647), {
+      message: "SSO ID must be between 1 and 2147483647"
+    }),
+  sso_mock_allowed: z.boolean(),
+});
+
+// Define the type for the form values based on the schema
+type FormValues = z.infer<typeof formSchema>;
 
 interface WhitelistFormProps {
   entry?: WhitelistEntry;
@@ -23,72 +41,68 @@ interface WhitelistFormProps {
   isSubmitting: boolean;
 }
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Bitte geben Sie eine gültige E-Mail-Adresse ein" }),
-  test_payment_allowed: z.boolean().default(false),
-  activity_api: z.boolean().default(false),
-  sso_id: z.union([z.number().int().positive().nullable(), z.literal("")])
-    .transform(val => val === "" ? null : val)
-    .nullable()
-    .optional(),
-  sso_mock_allowed: z.boolean().default(false),
-});
-
 const WhitelistForm: React.FC<WhitelistFormProps> = ({
   entry,
   onSubmit,
   onCancel,
-  isSubmitting,
+  isSubmitting
 }) => {
-  const form = useForm<WhitelistFormData>({
+  // Define the form with proper types
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: entry?.email ?? "",
-      test_payment_allowed: entry?.test_payment_allowed ?? false,
-      activity_api: entry?.activity_api ?? false,
-      sso_id: entry?.sso_id ?? null,
-      sso_mock_allowed: entry?.sso_mock_allowed ?? false,
-    },
+      email: entry?.email || "",
+      test_payment_allowed: entry?.test_payment_allowed || false,
+      activity_api: entry?.activity_api || false,
+      // Convert number to string for the input field
+      sso_id: entry?.sso_id ? String(entry.sso_id) : "",
+      sso_mock_allowed: entry?.sso_mock_allowed || false,
+    }
   });
 
-  const handleSubmit = (data: WhitelistFormData) => {
-    onSubmit(data);
+  const handleSubmit = (values: FormValues) => {
+    // Convert the form data to the expected format
+    const formData: WhitelistFormData = {
+      email: values.email,
+      test_payment_allowed: values.test_payment_allowed,
+      activity_api: values.activity_api,
+      sso_id: values.sso_id, // This has been transformed by Zod to the correct type
+      sso_mock_allowed: values.sso_mock_allowed,
+    };
+    
+    onSubmit(formData);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="email">E-Mail</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input id="email" placeholder="nutzer@beispiel.com" {...field} />
+                <Input placeholder="user@check24.de" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
+        
         <FormField
           control={form.control}
           name="sso_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="sso_id">SSO ID (optional)</FormLabel>
+              <FormLabel>SSO ID (optional)</FormLabel>
               <FormControl>
-                <Input
-                  id="sso_id"
-                  placeholder="123456"
-                  type="number"
-                  {...field}
-                  value={field.value === null ? "" : field.value}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    field.onChange(value ? parseInt(value, 10) : "");
-                  }}
+                <Input 
+                  type="number" 
+                  placeholder="SSO ID" 
+                  {...field} 
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
                 />
               </FormControl>
               <FormMessage />
@@ -96,71 +110,68 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="test_payment_allowed"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Testzahlung</FormLabel>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="test_payment_allowed"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between space-x-2 rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>Test Payment Allowed</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="activity_api"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Aktivitäts-API</FormLabel>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="activity_api"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between space-x-2 rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>Activity API</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-        <FormField
-          control={form.control}
-          name="sso_mock_allowed"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">SSO Mock</FormLabel>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name="sso_mock_allowed"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between space-x-2 rounded-lg border p-3">
+                <div className="space-y-0.5">
+                  <FormLabel>SSO Mock Allowed</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
 
-        <div className="flex justify-end space-x-2 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isSubmitting}
-          >
-            Abbrechen
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" type="button" onClick={onCancel}>
+            Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Speichern..." : entry ? "Aktualisieren" : "Erstellen"}
+            {entry ? "Update" : "Add"} Whitelist Entry
           </Button>
         </div>
       </form>

@@ -44,9 +44,9 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
           <TableRow>
             <TableHead className="w-[180px]">ID</TableHead>
             <TableHead className="w-[250px]">Email</TableHead>
-            <TableHead>SSO ID</TableHead>
             <TableHead>Test Payment</TableHead>
             <TableHead>Activity API</TableHead>
+            <TableHead>SSO ID</TableHead>
             <TableHead>SSO Mock</TableHead>
             <TableHead>Created</TableHead>
             <TableHead>Updated</TableHead>
@@ -68,13 +68,6 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                 </TableCell>
                 <TableCell className="font-medium">{entry.email}</TableCell>
                 <TableCell>
-                  {entry.sso_id ? (
-                    <span className="font-medium">{entry.sso_id}</span>
-                  ) : (
-                    <span className="text-muted-foreground text-sm">None</span>
-                  )}
-                </TableCell>
-                <TableCell>
                   <Switch
                     checked={entry.test_payment_allowed}
                     disabled={true}
@@ -87,6 +80,13 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                     disabled={true}
                     className="cursor-not-allowed opacity-70"
                   />
+                </TableCell>
+                <TableCell>
+                  {entry.sso_id ? (
+                    <span className="font-medium">{entry.sso_id}</span>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">None</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Switch
