@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
+import { WhitelistEntry, WhitelistFormData, WhitelistFormInputs } from "@/types/whitelist";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -32,7 +32,7 @@ const formSchema = z.object({
 });
 
 // Define the type for the form values based on the schema
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = WhitelistFormInputs;
 
 interface WhitelistFormProps {
   entry?: WhitelistEntry;
@@ -66,7 +66,8 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
       email: values.email,
       test_payment_allowed: values.test_payment_allowed,
       activity_api: values.activity_api,
-      sso_id: values.sso_id, // This has been transformed by Zod to the correct type
+      // The sso_id is already transformed by Zod to number | null
+      sso_id: formSchema.shape.sso_id.parse(values.sso_id),
       sso_mock_allowed: values.sso_mock_allowed,
     };
     
