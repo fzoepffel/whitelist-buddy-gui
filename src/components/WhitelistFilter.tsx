@@ -111,7 +111,7 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
           </Select>
 
           <Button 
-            variant="blue" 
+            variant="outline" 
             size="sm"
             onClick={handleApplyFilter}
           >

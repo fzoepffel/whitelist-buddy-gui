@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { WhitelistEntry, WhitelistFormData, WhitelistFormInputs } from "@/types/whitelist";
-import { cn } from "@/lib/utils";
+import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." })
@@ -32,7 +32,7 @@ const formSchema = z.object({
 });
 
 // Define the type for the form values based on the schema
-type FormValues = WhitelistFormInputs;
+type FormValues = z.infer<typeof formSchema>;
 
 interface WhitelistFormProps {
   entry?: WhitelistEntry;
@@ -66,8 +66,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
       email: values.email,
       test_payment_allowed: values.test_payment_allowed,
       activity_api: values.activity_api,
-      // The sso_id is already transformed by Zod to number | null
-      sso_id: formSchema.shape.sso_id.parse(values.sso_id),
+      sso_id: values.sso_id, // This has been transformed by Zod to the correct type
       sso_mock_allowed: values.sso_mock_allowed,
     };
     
@@ -124,9 +123,6 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className={cn(
-                      field.value ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
-                    )}
                   />
                 </FormControl>
               </FormItem>
@@ -145,9 +141,6 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className={cn(
-                      field.value ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
-                    )}
                   />
                 </FormControl>
               </FormItem>
@@ -166,9 +159,6 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   <Switch
                     checked={field.value}
                     onCheckedChange={field.onChange}
-                    className={cn(
-                      field.value ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
-                    )}
                   />
                 </FormControl>
               </FormItem>
@@ -180,7 +170,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           <Button variant="outline" type="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button variant="blue" type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting}>
             {entry ? "Update" : "Add"} Whitelist Entry
           </Button>
         </div>
