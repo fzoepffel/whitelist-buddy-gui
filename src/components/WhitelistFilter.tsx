@@ -112,8 +112,7 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
 
           <Button 
             variant="outline" 
-            size="sm" 
-            className="ml-auto" 
+            size="sm"
             onClick={handleApplyFilter}
           >
             Add Filter
@@ -123,6 +122,7 @@ const WhitelistFilter: React.FC<WhitelistFilterProps> = ({
             <Button 
               variant="ghost" 
               size="sm"
+              className="ml-auto"
               onClick={onClearFilter}
             >
               Clear All
