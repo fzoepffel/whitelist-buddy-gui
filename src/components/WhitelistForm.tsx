@@ -66,7 +66,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
       email: values.email,
       test_payment_allowed: values.test_payment_allowed,
       activity_api: values.activity_api,
-      sso_id: values.sso_id, // This is now correctly transformed by Zod
+      sso_id: values.sso_id, // This has been transformed by Zod to the correct type
       sso_mock_allowed: values.sso_mock_allowed,
     };
     
