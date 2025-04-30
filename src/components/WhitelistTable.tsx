@@ -103,16 +103,6 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
               <TableHead>
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>Activity API</TooltipTrigger>
-                    <TooltipContent>
-                      <p>Gewährt Zugriff auf die Activity API</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableHead>
-              <TableHead>
-                <TooltipProvider>
-                  <Tooltip>
                     <TooltipTrigger>SSO Mock</TooltipTrigger>
                     <TooltipContent>
                       <p>Erlaubt die Verwendung des SSO Mock-Systems</p>
@@ -155,7 +145,7 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
           <TableBody>
             {currentPageData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                   Keine Whitelist-Einträge gefunden.
                 </TableCell>
               </TableRow>
@@ -163,25 +153,10 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
               currentPageData.map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell className="font-medium">{entry.email}</TableCell>
-                  <TableCell>
-                    {entry.sso_id ? (
-                      <span className="font-medium">{entry.sso_id}</span>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">Keine</span>
-                    )}
-                  </TableCell>
+                  <TableCell className="font-medium">{entry.sso_id}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center">
                       {entry.test_payment_allowed ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-gray-500" />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-center">
-                      {entry.activity_api ? (
                         <CheckCircle2 className="h-4 w-4 text-green-500" />
                       ) : (
                         <XCircle className="h-4 w-4 text-gray-500" />

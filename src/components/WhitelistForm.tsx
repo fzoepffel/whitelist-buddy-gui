@@ -17,15 +17,16 @@ const formSchema = z.object({
       message: "E-Mail muss eine @check24.de Adresse sein"
     }),
   test_payment_allowed: z.boolean(),
-  activity_api: z.boolean(),
   sso_id: z.string()
+    .min(1, { message: "SSO ID ist erforderlich" })
     .transform((val) => {
-      if (!val) return null;
       const num = parseInt(val);
-      return isNaN(num) ? null : num;
+      if (isNaN(num)) {
+        throw new Error("SSO ID muss eine Zahl sein");
+      }
+      return num;
     })
-    .nullable()
-    .refine(val => val === null || (val >= 1 && val <= 2147483647), {
+    .refine(val => val >= 1 && val <= 2147483647, {
       message: "SSO ID muss zwischen 1 und 2147483647 liegen"
     }),
   sso_mock_allowed: z.boolean(),
@@ -58,8 +59,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
     defaultValues: {
       email: entry?.email || "",
       test_payment_allowed: entry?.test_payment_allowed || false,
-      activity_api: entry?.activity_api || false,
-      sso_id: entry?.sso_id ? String(entry.sso_id) : "",
+      sso_id: entry?.sso_id || 0,
       sso_mock_allowed: entry?.sso_mock_allowed || false,
     }
   });
@@ -75,8 +75,8 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
            (!entry || (e.id !== entry.id && e.email.toLowerCase() !== entry.email.toLowerCase()))
     );
     
-    const isSsoIdExists = values.sso_id && existingEntries.some(
-      e => e.sso_id === parseInt(values.sso_id) && 
+    const isSsoIdExists = existingEntries.some(
+      e => e.sso_id === values.sso_id && 
            (!entry || (e.id !== entry.id && e.sso_id !== entry.sso_id))
     );
 
@@ -94,8 +94,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
     const formData: WhitelistFormData = {
       email: values.email,
       test_payment_allowed: values.test_payment_allowed,
-      activity_api: values.activity_api,
-      sso_id: formSchema.shape.sso_id.parse(values.sso_id),
+      sso_id: values.sso_id,
       sso_mock_allowed: values.sso_mock_allowed,
     };
     
@@ -104,7 +103,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="email"
@@ -112,40 +111,43 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
             <FormItem>
               <FormLabel>E-Mail</FormLabel>
               <FormControl>
-                <Input placeholder="benutzer@check24.de" {...field} />
+                <Input
+                  placeholder="test@check24.de"
+                  {...field}
+                  className={cn(emailError && "border-red-500")}
+                />
               </FormControl>
-              {emailError && (
-                <p className="text-sm font-medium text-destructive">{emailError}</p>
+              {emailError && <FormMessage>{emailError}</FormMessage>}
+              {!emailError && form.formState.errors.email && (
+                <FormMessage>{form.formState.errors.email.message}</FormMessage>
               )}
-              <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="sso_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>SSO ID (optional)</FormLabel>
+              <FormLabel>SSO ID</FormLabel>
               <FormControl>
-                <Input 
-                  type="number" 
-                  placeholder="SSO ID" 
-                  {...field} 
-                  value={field.value || ""}
-                  onChange={(e) => field.onChange(e.target.value)}
+                <Input
+                  type="number"
+                  placeholder="1001"
+                  {...field}
+                  className={cn(ssoIdError && "border-red-500")}
                 />
               </FormControl>
-              {ssoIdError && (
-                <p className="text-sm font-medium text-destructive">{ssoIdError}</p>
+              {ssoIdError && <FormMessage>{ssoIdError}</FormMessage>}
+              {!ssoIdError && form.formState.errors.sso_id && (
+                <FormMessage>{form.formState.errors.sso_id.message}</FormMessage>
               )}
-              <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <FormField
             control={form.control}
             name="test_payment_allowed"
@@ -153,27 +155,6 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
               <FormItem className="flex flex-col space-y-2 rounded-lg border p-3">
                 <div className="space-y-0.5">
                   <FormLabel>Testzahlung erlaubt</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    className={cn(
-                      field.value ? "bg-green-500 data-[state=checked]:bg-green-500" : ""
-                    )}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="activity_api"
-            render={({ field }) => (
-              <FormItem className="flex flex-col space-y-2 rounded-lg border p-3">
-                <div className="space-y-0.5">
-                  <FormLabel>Activity API</FormLabel>
                 </div>
                 <FormControl>
                   <Switch
