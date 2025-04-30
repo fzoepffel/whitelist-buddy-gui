@@ -7,15 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Bitte geben Sie eine gültige E-Mail-Adresse ein." })
-    .refine(email => email.endsWith('@check24.de'), {
-      message: "E-Mail muss eine @check24.de Adresse sein"
-    }),
+  email: z.string().email({ message: "Bitte geben Sie eine gültige E-Mail-Adresse ein." }),
   test_payment_allowed: z.boolean(),
   sso_id: z.string()
     .min(1, { message: "SSO ID ist erforderlich" })
@@ -109,10 +108,22 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>E-Mail</FormLabel>
+              <FormLabel className="flex items-center gap-1">
+                E-Mail
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-4 w-4 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Muss eine valide Email Adresse sein</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="test@check24.de"
+                  placeholder="test@example.com"
                   {...field}
                   className={cn(emailError && "border-red-500")}
                 />
@@ -130,7 +141,19 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
           name="sso_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>SSO ID</FormLabel>
+              <FormLabel className="flex items-center gap-1">
+                SSO ID
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="h-4 w-4 text-gray-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Repräsentiert die CHECK24 SSO Account ID</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -155,7 +178,19 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
             render={({ field }) => (
               <FormItem className="flex flex-col space-y-2 rounded-lg border p-3">
                 <div className="space-y-0.5">
-                  <FormLabel>Testzahlung erlaubt</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    Testzahlung erlaubt
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p> Gibt an ob der User Test Payments machen darf - Jede Bestellung ist eine Testbestellung.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </FormLabel>
                 </div>
                 <FormControl>
                   <Switch
@@ -176,7 +211,19 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
             render={({ field }) => (
               <FormItem className="flex flex-col space-y-2 rounded-lg border p-3">
                 <div className="space-y-0.5">
-                  <FormLabel>SSO Mock erlaubt</FormLabel>
+                  <FormLabel className="flex items-center gap-1">
+                    SSO Mock erlaubt
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <HelpCircle className="h-4 w-4 text-gray-500" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Gibt an ob der User die SSO Mock Funktionalität hat. V.a. für Lasttests relevant.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </FormLabel>
                 </div>
                 <FormControl>
                   <Switch
