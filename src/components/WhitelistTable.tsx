@@ -70,16 +70,6 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[180px]">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>ID</TooltipTrigger>
-                    <TooltipContent>
-                      <p>Eindeutige Kennung des Eintrags</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableHead>
               <TableHead className="w-[250px]">
                 <TooltipProvider>
                   <Tooltip>
@@ -165,16 +155,13 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
           <TableBody>
             {currentPageData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                   Keine Whitelist-Einträge gefunden.
                 </TableCell>
               </TableRow>
             ) : (
               currentPageData.map((entry) => (
                 <TableRow key={entry.id}>
-                  <TableCell className="font-mono text-xs truncate" title={entry.id}>
-                    {entry.id.substring(0, 8)}...
-                  </TableCell>
                   <TableCell className="font-medium">{entry.email}</TableCell>
                   <TableCell>
                     {entry.sso_id ? (
@@ -253,7 +240,6 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                   className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
                 />
               </PaginationItem>
-              
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <PaginationItem key={page}>
                   <PaginationLink
@@ -264,7 +250,6 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                   </PaginationLink>
                 </PaginationItem>
               ))}
-              
               <PaginationItem>
                 <PaginationNext
                   onClick={() => onPageChange(currentPage + 1)}

@@ -9,20 +9,13 @@ import { WhitelistEntry, WhitelistFormData } from "@/types/whitelist";
 import WhitelistTable from "@/components/WhitelistTable";
 import WhitelistForm from "@/components/WhitelistForm";
 import WhitelistSearchBar from "@/components/WhitelistSearchBar";
-import WhitelistFilter from "@/components/WhitelistFilter";
 import { mockWhitelistData } from "@/utils/mockData";
 import { Plus } from "lucide-react";
-
-interface FilterOption {
-  field: string;
-  value: boolean | null;
-}
 
 const Index = () => {
   const [whitelistData, setWhitelistData] = useState<WhitelistEntry[]>([]);
   const [filteredData, setFilteredData] = useState<WhitelistEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState<FilterOption[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentEntry, setCurrentEntry] = useState<WhitelistEntry | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,7 +30,7 @@ const Index = () => {
     setFilteredData(mockWhitelistData);
   }, []);
 
-  // Filter data based on search query and active filters
+  // Filter data based on search query
   useEffect(() => {
     let result = whitelistData;
     
@@ -52,19 +45,8 @@ const Index = () => {
       );
     }
     
-    // Apply multiple field filters if active
-    if (activeFilters.length > 0) {
-      // Filter entries that match ALL of the active filters
-      result = result.filter(entry => {
-        return activeFilters.every(filter => {
-          const fieldName = filter.field as keyof WhitelistEntry;
-          return entry[fieldName] === filter.value;
-        });
-      });
-    }
-    
     setFilteredData(result);
-  }, [searchQuery, whitelistData, activeFilters]);
+  }, [searchQuery, whitelistData]);
 
   const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
@@ -73,25 +55,10 @@ const Index = () => {
     setCurrentPage(page);
   };
 
-  // Reset to first page when filters or search change
+  // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, activeFilters]);
-
-  const handleApplyFilters = (filters: FilterOption[]) => {
-    setActiveFilters(filters);
-    if (filters.length === 1) {
-      const filter = filters[0];
-      toast.info(`Filter angewendet: ${filter.field} ${filter.value ? '(aktiviert)' : '(deaktiviert)'}`);
-    } else {
-      toast.info(`${filters.length} Filter angewendet`);
-    }
-  };
-
-  const handleClearFilters = () => {
-    setActiveFilters([]);
-    toast.info("Alle Filter entfernt");
-  };
+  }, [searchQuery]);
 
   const handleAddEntry = () => {
     setCurrentEntry(undefined);
@@ -194,11 +161,6 @@ const Index = () => {
             <WhitelistSearchBar 
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
-            />
-            <WhitelistFilter 
-              onFilter={handleApplyFilters}
-              onClearFilter={handleClearFilters}
-              activeFilters={activeFilters}
             />
           </div>
           
