@@ -58,9 +58,9 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: entry?.email || "",
-      test_payment_allowed: entry?.test_payment_allowed || false,
-      sso_id: entry?.sso_id || 0,
-      sso_mock_allowed: entry?.sso_mock_allowed || false,
+      test_payment_allowed: entry?.test_payment_allowed ?? true,
+      sso_id: entry?.sso_id || undefined,
+      sso_mock_allowed: entry?.sso_mock_allowed ?? false,
     }
   });
 
@@ -136,6 +136,7 @@ const WhitelistForm: React.FC<WhitelistFormProps> = ({
                   type="number"
                   placeholder="1001"
                   {...field}
+                  value={field.value || ""}
                   className={cn(ssoIdError && "border-red-500")}
                 />
               </FormControl>

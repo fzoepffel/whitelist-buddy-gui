@@ -95,7 +95,7 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({
                   <Tooltip>
                     <TooltipTrigger>Testzahlung</TooltipTrigger>
                     <TooltipContent>
-                      <p>Erlaubt Testzahlungen für dieses Konto</p>
+                      <p>Erlaubt Testzahlungen für dieses Konto - jede Bestellung ist eine Testbestellung</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
